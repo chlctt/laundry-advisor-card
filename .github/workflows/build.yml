@@ -25,7 +25,9 @@ jobs:
           }
 
   hacs:
+    # informational until we submit to the HACS default store
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: hacs/action@main

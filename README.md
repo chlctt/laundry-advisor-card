@@ -4,9 +4,8 @@ Lovelace-Card zur **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-ad
 Blueprint: zeigt auf einen Blick, ob Wäsche **draußen**, **im Keller** oder
 **gar nicht heute** getrocknet werden sollte.
 
-> Status: **MVP / v0.1** – funktioniert, Feinschliff folgt.
-
-![Card](docs/preview.png)
+> Status: **MVP / v0.1** – funktioniert, Feinschliff folgt. Screenshot folgt,
+> sobald der Blueprint auf einer Instanz läuft.
 
 ## Voraussetzung
 
