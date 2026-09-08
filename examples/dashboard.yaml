@@ -1,0 +1,69 @@
+# Beispiel-Dashboard-View für den Wäschewetter-Advisor.
+# In den Lovelace-YAML-Modus einfügen oder als neue View übernehmen.
+
+title: Wäsche
+path: waesche
+icon: mdi:tshirt-crew
+cards:
+  # --- Haupt-Card ---
+  - type: custom:laundry-advisor-card
+    entity: sensor.laundry_advisor
+    name: Wäschewetter
+    show_forecast: true
+    show_cellar: true
+    show_reasons: true
+
+  # --- Steuer-Helfer ---
+  - type: entities
+    title: Steuerung
+    entities:
+      - entity: input_boolean.waesche_gewaschen
+        name: Wäsche ist gewaschen
+      # optional, falls in der Notify-Automation genutzt:
+      # - fan.waschkeller_ventilator
+      # - switch.waschkeller_abluft
+
+  # --- Fallback / Detailansicht ohne die Custom-Card ---
+  - type: entities
+    title: Advisor – Rohwerte
+    entities:
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: headline
+        name: Empfehlung
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: outdoor_score
+        name: Outdoor-Score heute
+        suffix: " / 100"
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: outdoor_score_tomorrow
+        name: Outdoor-Score morgen
+        suffix: " / 100"
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: best_window_start_hour
+        name: Fenster ab (Uhr)
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: daylight_left_h
+        name: Tageslicht übrig (h)
+
+  # --- Keller-Klima (Kontext) ---
+  - type: entities
+    title: Waschkeller
+    entities:
+      - sensor.umgebungssensor_waschkeller_temperature
+      - sensor.umgebungssensor_waschkeller_humidity
+      - entity: sensor.laundry_advisor
+        type: attribute
+        attribute: cellar
+        name: Keller-Objekt (Debug)
+
+  # --- Verlauf des Scores (optional, Kern-HA-Card) ---
+  - type: history-graph
+    title: Outdoor-Score Verlauf
+    hours_to_show: 72
+    entities:
+      - entity: sensor.laundry_advisor
