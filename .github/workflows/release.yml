@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Sync version into files
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"${VERSION}\"/" package.json
+          sed -i "s/CARD_VERSION = \".*\"/CARD_VERSION = \"${VERSION}\"/" src/const.ts
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/laundry-advisor-card.js
+          generate_release_notes: true

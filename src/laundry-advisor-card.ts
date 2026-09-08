@@ -1,0 +1,385 @@
+import { LitElement, html, css, nothing, type TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import type { HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
+
+import {
+  CARD_TAG,
+  CARD_VERSION,
+  EDITOR_TAG,
+  STATE_META,
+  scoreColor,
+  type Recommendation,
+} from "./const";
+import type { AdvisorAttributes, LaundryAdvisorCardConfig } from "./types";
+import "./editor";
+
+/* eslint-disable no-console */
+console.info(
+  `%c LAUNDRY-ADVISOR-CARD %c ${CARD_VERSION} `,
+  "color:white;background:#1e88e5;font-weight:700",
+  "color:#1e88e5;background:#eee",
+);
+/* eslint-enable no-console */
+
+(window as any).customCards = (window as any).customCards || [];
+(window as any).customCards.push({
+  type: CARD_TAG,
+  name: "Laundry Advisor Card",
+  description: "Wäschewetter – draußen, Keller oder warten?",
+  preview: true,
+  documentationURL: "https://github.com/chlctt/laundry-advisor-card",
+});
+
+const WEEKDAY = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+@customElement(CARD_TAG)
+export class LaundryAdvisorCard extends LitElement {
+  @property({ attribute: false }) public hass?: HomeAssistant;
+  @state() private _config?: LaundryAdvisorCardConfig;
+
+  public static async getConfigElement(): Promise<LovelaceCardEditor> {
+    return document.createElement(EDITOR_TAG) as unknown as LovelaceCardEditor;
+  }
+
+  public static getStubConfig(): Partial<LaundryAdvisorCardConfig> {
+    return { entity: "sensor.laundry_advisor", show_forecast: true, show_cellar: true };
+  }
+
+  public setConfig(config: LaundryAdvisorCardConfig): void {
+    if (!config || !config.entity) {
+      throw new Error("Bitte eine Advisor-Sensor-Entität angeben (entity).");
+    }
+    this._config = {
+      show_forecast: true,
+      show_cellar: true,
+      show_reasons: true,
+      ...config,
+    };
+  }
+
+  public getCardSize(): number {
+    return 4;
+  }
+
+  protected render(): TemplateResult | typeof nothing {
+    if (!this._config || !this.hass) return nothing;
+    const stateObj = this.hass.states[this._config.entity];
+    if (!stateObj) {
+      return html`<ha-card
+        ><div class="warn">Entität ${this._config.entity} nicht gefunden.</div></ha-card
+      >`;
+    }
+
+    const rec = (stateObj.state as Recommendation) in STATE_META
+      ? (stateObj.state as Recommendation)
+      : "unknown";
+    const meta = STATE_META[rec];
+    const attr = stateObj.attributes as AdvisorAttributes;
+    const today = Number(attr.outdoor_score ?? 0);
+    const tomorrow = Number(attr.outdoor_score_tomorrow ?? 0);
+
+    return html`
+      <ha-card>
+        <div class="header" style=${`--accent:${meta.color}`}>
+          <div class="badge">
+            <ha-icon .icon=${meta.icon}></ha-icon>
+          </div>
+          <div class="headline">
+            <div class="title">${this._config.name ?? meta.label}</div>
+            <div class="sub">${attr.headline ?? ""}</div>
+          </div>
+        </div>
+
+        <div class="scores">
+          ${this._scoreRing("Heute", today)}
+          ${this._scoreRing("Morgen", tomorrow, true)}
+          <div class="window">
+            ${this._renderWindow(attr)}
+            ${attr.daylight_left_h != null
+              ? html`<div class="muted">${attr.daylight_left_h} h Tageslicht übrig</div>`
+              : nothing}
+          </div>
+        </div>
+
+        ${this._config.show_forecast && attr.forecast_days?.length
+          ? this._renderForecast(attr.forecast_days)
+          : nothing}
+        ${this._config.show_cellar && attr.cellar ? this._renderCellar(attr.cellar) : nothing}
+        ${this._config.show_reasons && attr.reasons?.length
+          ? html`<ul class="reasons">
+              ${attr.reasons.map((r) => html`<li>${r}</li>`)}
+            </ul>`
+          : nothing}
+      </ha-card>
+    `;
+  }
+
+  private _scoreRing(label: string, score: number, small = false): TemplateResult {
+    const c = scoreColor(score);
+    const pct = Math.max(0, Math.min(100, score));
+    return html`
+      <div class="ring ${small ? "small" : ""}">
+        <div
+          class="dial"
+          style=${`background:conic-gradient(${c} ${pct}%, var(--divider-color, #e0e0e0) ${pct}%)`}
+        >
+          <div class="hole"><span>${Math.round(score)}</span></div>
+        </div>
+        <div class="ring-label">${label}</div>
+      </div>
+    `;
+  }
+
+  private _renderWindow(attr: AdvisorAttributes): TemplateResult | typeof nothing {
+    const s = attr.best_window_start_hour;
+    const e = attr.best_window_end_hour;
+    if (s == null || e == null) return html`<div class="muted">Kein Fenster heute</div>`;
+    return html`<div class="chip">
+      <ha-icon icon="mdi:clock-outline"></ha-icon> ${s}–${e} Uhr
+    </div>`;
+  }
+
+  private _renderForecast(days: AdvisorAttributes["forecast_days"] = []): TemplateResult {
+    return html`
+      <div class="forecast">
+        ${days.map((d) => {
+          const dt = new Date(d.date + "T12:00:00");
+          const h = Math.max(4, Math.min(100, Number(d.score))); // min bar height
+          return html`
+            <div class="fday">
+              <div class="bar-track">
+                <div
+                  class="bar"
+                  style=${`height:${h}%;background:${scoreColor(Number(d.score))}`}
+                ></div>
+              </div>
+              <div class="fscore">${Math.round(Number(d.score))}</div>
+              <div class="fdow">${WEEKDAY[dt.getDay()]}</div>
+            </div>
+          `;
+        })}
+      </div>
+    `;
+  }
+
+  private _renderCellar(c: NonNullable<AdvisorAttributes["cellar"]>): TemplateResult {
+    const dd =
+      c.dewpoint_outdoor != null && c.dewpoint_cellar != null
+        ? (c.dewpoint_outdoor - c.dewpoint_cellar).toFixed(1)
+        : null;
+    return html`
+      <div class="cellar">
+        <div class="cellar-row">
+          <ha-icon icon="mdi:home-floor-b"></ha-icon>
+          <span>Keller</span>
+          ${c.humidity != null ? html`<b>${c.humidity}%</b>` : nothing}
+          ${c.temperature != null ? html`<span class="muted">${c.temperature}°C</span>` : nothing}
+          ${c.mold_risk
+            ? html`<span class="tag danger">Schimmel</span>`
+            : c.suitable
+              ? html`<span class="tag ok">nutzbar</span>`
+              : html`<span class="tag warn">ungünstig</span>`}
+        </div>
+        <div class="cellar-row muted small">
+          ${dd != null
+            ? html`Taupunkt außen ${dd} K ${Number(dd) < 0 ? "unter" : "über"} Keller ·`
+            : nothing}
+          Lüften: ${c.ventilation_useful ? "sinnvoll" : "bringt nichts"}
+          ${c.surface_rh_estimate != null
+            ? html`· Wand ~${c.surface_rh_estimate}%`
+            : nothing}
+        </div>
+      </div>
+    `;
+  }
+
+  static styles = css`
+    ha-card {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .warn {
+      color: var(--error-color, #db4437);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      color: var(--accent);
+    }
+    .badge ha-icon {
+      --mdc-icon-size: 26px;
+    }
+    .headline .title {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--primary-text-color);
+    }
+    .headline .sub {
+      font-size: 0.9rem;
+      color: var(--secondary-text-color);
+    }
+    .scores {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .ring {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .dial {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .ring.small .dial {
+      width: 54px;
+      height: 54px;
+    }
+    .hole {
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      background: var(--card-background-color, #fff);
+      display: grid;
+      place-items: center;
+    }
+    .hole span {
+      font-weight: 700;
+      color: var(--primary-text-color);
+    }
+    .ring.small .hole span {
+      font-size: 0.85rem;
+    }
+    .ring-label {
+      font-size: 0.75rem;
+      color: var(--secondary-text-color);
+    }
+    .window {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-left: auto;
+      align-items: flex-end;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 14px;
+      background: var(--secondary-background-color, #f1f1f1);
+      color: var(--primary-text-color);
+      font-size: 0.85rem;
+    }
+    .chip ha-icon {
+      --mdc-icon-size: 16px;
+    }
+    .muted {
+      color: var(--secondary-text-color);
+    }
+    .small {
+      font-size: 0.8rem;
+    }
+    .forecast {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .fday {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .bar-track {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: flex-end;
+      background: var(--divider-color, #ececec);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+    }
+    .fscore {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary-text-color);
+    }
+    .fdow {
+      font-size: 0.72rem;
+      color: var(--secondary-text-color);
+    }
+    .cellar {
+      border-top: 1px solid var(--divider-color, #e0e0e0);
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cellar-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cellar-row ha-icon {
+      --mdc-icon-size: 18px;
+      color: var(--secondary-text-color);
+    }
+    .tag {
+      margin-left: auto;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+    .tag.ok {
+      background: #43a04722;
+      color: #2e7d32;
+    }
+    .tag.warn {
+      background: #fb8c0022;
+      color: #ef6c00;
+    }
+    .tag.danger {
+      background: #e5393522;
+      color: #c62828;
+    }
+    .reasons {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--secondary-text-color);
+      font-size: 0.82rem;
+    }
+    .reasons li {
+      margin: 2px 0;
+    }
+  `;
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "laundry-advisor-card": LaundryAdvisorCard;
+  }
+}
