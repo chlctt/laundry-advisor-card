@@ -5,7 +5,6 @@ export interface LaundryAdvisorCardConfig extends LovelaceCardConfig {
   /** The recommendation sensor produced by the ha-laundry-advisor blueprint. */
   entity: string;
   name?: string;
-  show_forecast?: boolean;
   show_cellar?: boolean;
   show_reasons?: boolean;
 }
@@ -34,6 +33,7 @@ export interface AdvisorAttributes {
   reasons?: string[];
   outdoor_score?: number;
   outdoor_score_tomorrow?: number;
+  outdoor_score_day_after?: number;
   daylight_left_h?: number;
   best_window_start_hour?: number | null;
   best_window_end_hour?: number | null;

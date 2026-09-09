@@ -30,8 +30,6 @@ console.info(
   documentationURL: "https://github.com/chlctt/laundry-advisor-card",
 });
 
-const WEEKDAY = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-
 @customElement(CARD_TAG)
 export class LaundryAdvisorCard extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
@@ -42,7 +40,7 @@ export class LaundryAdvisorCard extends LitElement {
   }
 
   public static getStubConfig(): Partial<LaundryAdvisorCardConfig> {
-    return { entity: "sensor.laundry_advisor", show_forecast: true, show_cellar: true };
+    return { entity: "sensor.laundry_advisor", show_cellar: true };
   }
 
   public setConfig(config: LaundryAdvisorCardConfig): void {
@@ -50,7 +48,6 @@ export class LaundryAdvisorCard extends LitElement {
       throw new Error("Bitte eine Advisor-Sensor-Entität angeben (entity).");
     }
     this._config = {
-      show_forecast: true,
       show_cellar: true,
       show_reasons: true,
       ...config,
@@ -75,6 +72,9 @@ export class LaundryAdvisorCard extends LitElement {
       : "unknown";
     const meta = STATE_META[rec];
     const attr = stateObj.attributes as AdvisorAttributes;
+    const today = attr.outdoor_score;
+    const tomorrow = attr.outdoor_score_tomorrow;
+    const dayAfter = attr.outdoor_score_day_after;
 
     return html`
       <ha-card>
@@ -86,6 +86,12 @@ export class LaundryAdvisorCard extends LitElement {
           </div>
         </div>
 
+        <div class="scores">
+          ${this._ring("Heute", today, "lg")}
+          ${this._ring("Morgen", tomorrow, "sm")}
+          ${this._ring("Übermorgen", dayAfter, "sm")}
+        </div>
+
         <div class="infobar">
           ${this._renderWindow(attr)}
           ${attr.daylight_left_h != null
@@ -93,9 +99,6 @@ export class LaundryAdvisorCard extends LitElement {
             : nothing}
         </div>
 
-        ${this._config.show_forecast && attr.forecast_days?.length
-          ? this._renderForecast(attr.forecast_days)
-          : nothing}
         ${this._config.show_cellar && attr.cellar ? this._renderCellar(attr.cellar) : nothing}
         ${this._config.show_reasons && attr.reasons?.length
           ? html`<ul class="reasons">
@@ -106,6 +109,32 @@ export class LaundryAdvisorCard extends LitElement {
     `;
   }
 
+  private _ring(label: string, score: number | undefined, size: "lg" | "sm"): TemplateResult {
+    if (score == null || isNaN(Number(score))) {
+      return html`
+        <div class="ring ${size}">
+          <div class="dial" style="background:var(--divider-color, #e0e0e0)">
+            <div class="hole"><span>–</span></div>
+          </div>
+          <div class="ring-label">${label}</div>
+        </div>
+      `;
+    }
+    const s = Math.max(0, Math.min(100, Number(score)));
+    const c = scoreColor(s);
+    return html`
+      <div class="ring ${size}">
+        <div
+          class="dial"
+          style=${`background:conic-gradient(${c} ${s}%, var(--divider-color, #e0e0e0) ${s}%)`}
+        >
+          <div class="hole"><span>${Math.round(Number(score))}</span></div>
+        </div>
+        <div class="ring-label">${label}</div>
+      </div>
+    `;
+  }
+
   private _renderWindow(attr: AdvisorAttributes): TemplateResult {
     const s = attr.best_window_start_hour;
     const e = attr.best_window_end_hour;
@@ -113,29 +142,6 @@ export class LaundryAdvisorCard extends LitElement {
     return html`<span class="chip">
       <ha-icon icon="mdi:clock-outline"></ha-icon> ${s}–${e} Uhr
     </span>`;
-  }
-
-  private _renderForecast(days: AdvisorAttributes["forecast_days"] = []): TemplateResult {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    return html`
-      <div class="forecast">
-        ${days.map((d) => {
-          const dt = new Date(d.date + "T12:00:00");
-          const score = Number(d.score);
-          const h = Math.max(4, Math.min(100, score));
-          const isToday = d.date === todayStr;
-          return html`
-            <div class="fday ${isToday ? "today" : ""}">
-              <div class="bar-track">
-                <div class="bar" style=${`height:${h}%;background:${scoreColor(score)}`}></div>
-              </div>
-              <div class="fscore">${Math.round(score)}</div>
-              <div class="fdow">${isToday ? "Heute" : WEEKDAY[dt.getDay()]}</div>
-            </div>
-          `;
-        })}
-      </div>
-    `;
   }
 
   private _renderCellar(c: NonNullable<AdvisorAttributes["cellar"]>): TemplateResult {
@@ -204,12 +210,58 @@ export class LaundryAdvisorCard extends LitElement {
       font-size: 0.9rem;
       color: var(--secondary-text-color);
     }
+    .scores {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .ring {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .dial {
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .ring.lg .dial {
+      width: 78px;
+      height: 78px;
+    }
+    .ring.sm .dial {
+      width: 56px;
+      height: 56px;
+    }
+    .hole {
+      width: 72%;
+      height: 72%;
+      border-radius: 50%;
+      background: var(--card-background-color, #fff);
+      display: grid;
+      place-items: center;
+    }
+    .hole span {
+      font-weight: 700;
+      color: var(--primary-text-color);
+    }
+    .ring.lg .hole span {
+      font-size: 1.15rem;
+    }
+    .ring.sm .hole span {
+      font-size: 0.85rem;
+    }
+    .ring-label {
+      font-size: 0.75rem;
+      color: var(--secondary-text-color);
+    }
     .infobar {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: -2px;
     }
     .chip {
       display: inline-flex;
@@ -230,48 +282,6 @@ export class LaundryAdvisorCard extends LitElement {
     }
     .small {
       font-size: 0.8rem;
-    }
-    .forecast {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-    }
-    .fday {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .bar-track {
-      width: 100%;
-      height: 68px;
-      display: flex;
-      align-items: flex-end;
-      background: var(--divider-color, #ececec);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .bar {
-      width: 100%;
-      border-radius: 4px 4px 0 0;
-    }
-    .fscore {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--primary-text-color);
-    }
-    .fdow {
-      font-size: 0.72rem;
-      color: var(--secondary-text-color);
-    }
-    .fday.today .fdow {
-      color: var(--primary-color, #1e88e5);
-      font-weight: 600;
-    }
-    .fday.today .bar-track {
-      outline: 2px solid var(--primary-color, #1e88e5);
-      outline-offset: 1px;
     }
     .cellar {
       border-top: 1px solid var(--divider-color, #e0e0e0);

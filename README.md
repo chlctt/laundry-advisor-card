@@ -28,7 +28,6 @@ type: custom:laundry-advisor-card
 entity: sensor.laundry_advisor
 # optional:
 name: Wäschewetter
-show_forecast: true
 show_cellar: true
 show_reasons: true
 ```
@@ -39,9 +38,12 @@ Ein visueller Editor ist vorhanden.
 |---|---|---|
 | `entity` | – | Advisor-Sensor (Pflicht) |
 | `name` | State-Label | Überschrift |
-| `show_forecast` | `true` | Tagesvorschau-Balken (erster = heute) |
 | `show_cellar` | `true` | Keller-Zeile (rF, Taupunktdifferenz, Lüften, Wandfeuchte) |
 | `show_reasons` | `true` | Begründungs-Liste |
+
+Die Card zeigt drei Score-Ringe: **Heute** (groß), **Morgen** und **Übermorgen**
+(klein). Dafür muss der Blueprint das Attribut `outdoor_score_day_after` liefern
+(ha-laundry-advisor ≥ v-mit-übermorgen).
 
 ## Entwicklung
 

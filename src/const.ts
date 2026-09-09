@@ -1,4 +1,4 @@
-export const CARD_VERSION = "0.1.1";
+export const CARD_VERSION = "0.1.2";
 export const CARD_TAG = "laundry-advisor-card";
 export const EDITOR_TAG = "laundry-advisor-card-editor";
 

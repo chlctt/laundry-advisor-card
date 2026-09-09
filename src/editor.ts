@@ -16,7 +16,6 @@ const SCHEMA = [
     type: "grid",
     name: "",
     schema: [
-      { name: "show_forecast", selector: { boolean: {} } },
       { name: "show_cellar", selector: { boolean: {} } },
       { name: "show_reasons", selector: { boolean: {} } },
     ],
@@ -36,7 +35,6 @@ export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCard
     const map: Record<string, string> = {
       entity: "Advisor-Sensor",
       name: "Titel (optional)",
-      show_forecast: "Tagesvorschau",
       show_cellar: "Keller-Zeile",
       show_reasons: "Begründungen",
     };

@@ -9,7 +9,6 @@ cards:
   - type: custom:laundry-advisor-card
     entity: sensor.laundry_advisor
     name: Wäschewetter
-    show_forecast: true
     show_cellar: true
     show_reasons: true
 
@@ -40,6 +39,11 @@ cards:
         entity: sensor.laundry_advisor
         attribute: outdoor_score_tomorrow
         name: Outdoor-Score morgen
+        suffix: " / 100"
+      - type: attribute
+        entity: sensor.laundry_advisor
+        attribute: outdoor_score_day_after
+        name: Outdoor-Score übermorgen
         suffix: " / 100"
       - type: attribute
         entity: sensor.laundry_advisor

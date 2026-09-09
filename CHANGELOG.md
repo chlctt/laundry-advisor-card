@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.2] – 2026-09-09
+
+### Changed
+- Tagesvorschau-Balken entfernt. Stattdessen drei Score-Ringe:
+  **Heute** (groß) · **Morgen** · **Übermorgen** (beide klein, gleich groß).
+- Benötigt das neue Blueprint-Attribut `outdoor_score_day_after`
+  (ha-laundry-advisor ≥ 9da0ca1).
+- Config-Option `show_forecast` entfällt.
+
 ## [0.1.1] – 2026-09-09
 
 ### Changed
