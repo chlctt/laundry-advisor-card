@@ -1,0 +1,49 @@
+{
+  "states": {
+    "hang_outside_now": { "label": "Hang it out", "headline": "Hang it outside – good drying weather today." },
+    "hang_outside_later": { "label": "Later today", "headline": "Still possible today, but the window is tight." },
+    "outside_marginal": { "label": "Outside, watch it", "headline": "Outside works, but keep an eye on the sky." },
+    "wait_for_tomorrow": { "label": "On a rack", "headline": "Put it on a rack today – tomorrow is clearly better outside." },
+    "defer_wash": { "label": "Delay the wash", "headline": "Worth waiting until tomorrow to wash." },
+    "room_ventilate": { "label": "{room}: ventilate", "headline": "Best spot: {room} – air it out and run a fan." },
+    "room_dehumidify": { "label": "{room}: dehumidifier", "headline": "Best spot: {room} – with a dehumidifier (airing does nothing right now)." },
+    "dryer_recommended": { "label": "Tumble dryer", "headline": "No good drying spot – use the tumble dryer." },
+    "best_effort": { "label": "Best bet: {room}", "headline": "No really good spot. Best bet: {room} – ventilate well there." },
+    "mold_risk": { "label": "Mould risk", "headline": "Warning: every room is too humid – do not hang anything wet." },
+    "unknown": { "label": "Unknown", "headline": "No assessment possible yet." }
+  },
+  "reasons": {
+    "outdoor_rain": "Rain expected – outside is out.",
+    "outdoor_good": "Outdoor score today {s}.",
+    "outdoor_weak": "Outdoor score today only {s}.",
+    "tomorrow_better": "Tomorrow clearly better ({t} vs {d}).",
+    "room_best": "{n}: best indoor room (score {s}).",
+    "room_too_humid": "{n} at {rh}% RH – above the limit.",
+    "vent_useful": "Outdoor air is drier – airing helps.",
+    "vent_useless": "Outdoor air not drier – airing does nothing.",
+    "no_room": "No indoor room below the humidity limit.",
+    "no_dryer": "No tumble dryer configured.",
+    "mold": "{n}: mould risk (RH above 80%)."
+  },
+  "room_status": {
+    "ok": "ok",
+    "too_humid": "too humid",
+    "too_cold": "too cold",
+    "mold_risk": "mould"
+  },
+  "ui": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "day_after": "In 2 days",
+    "no_window": "No drying window today",
+    "daylight_left": "{h} h of daylight left",
+    "rooms": "Rooms",
+    "recommended": "recommended",
+    "ventilate_hint": "airing helps",
+    "ventilate_useless": "airing does nothing",
+    "has_fan": "fan",
+    "has_dehumidifier": "dehumidifier",
+    "entity_not_found": "Entity {entity} not found.",
+    "need_entity": "Please set an advisor sensor entity (entity)."
+  }
+}
