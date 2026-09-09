@@ -1,4 +1,4 @@
-export const CARD_VERSION = "0.2.0";
+export const CARD_VERSION = "0.2.1";
 export const CARD_TAG = "laundry-advisor-card";
 export const EDITOR_TAG = "laundry-advisor-card-editor";
 
@@ -8,6 +8,7 @@ export type Recommendation =
   | "outside_marginal"
   | "wait_for_tomorrow"
   | "defer_wash"
+  | "room_ok"
   | "room_ventilate"
   | "room_dehumidify"
   | "dryer_recommended"
@@ -28,6 +29,7 @@ export const STATE_META: Record<Recommendation, StateMeta> = {
   outside_marginal: { icon: "mdi:weather-partly-cloudy", color: "#c0ca33" },
   wait_for_tomorrow: { icon: "mdi:timer-sand", color: "#1e88e5" },
   defer_wash: { icon: "mdi:washing-machine-off", color: "#3949ab" },
+  room_ok: { icon: "mdi:tshirt-crew", color: "#43a047" },
   room_ventilate: { icon: "mdi:window-open-variant", color: "#fb8c00" },
   room_dehumidify: { icon: "mdi:air-humidifier", color: "#f4511e" },
   dryer_recommended: { icon: "mdi:tumble-dryer", color: "#8e24aa" },

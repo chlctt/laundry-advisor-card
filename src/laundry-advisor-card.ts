@@ -26,7 +26,7 @@ console.info(
 (window as any).customCards.push({
   type: CARD_TAG,
   name: "Laundry Advisor Card",
-  description: "Wäschewetter – draußen, Raum, Trockner oder warten?",
+  description: "Where to dry laundry – outside, a room, the dryer, or wait?",
   preview: true,
   documentationURL: "https://github.com/chlctt/laundry-advisor-card",
 });
@@ -52,7 +52,10 @@ export class LaundryAdvisorCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 4;
+    if (!this._config || !this.hass) return 4;
+    const attr = this.hass.states[this._config.entity]?.attributes as AdvisorAttributes | undefined;
+    const rooms = this._config.show_rooms === false ? 0 : (attr?.rooms?.length ?? 0);
+    return 3 + Math.ceil(rooms / 2);
   }
 
   private get _lang(): string {
@@ -79,7 +82,7 @@ export class LaundryAdvisorCard extends LitElement {
     const attr = stateObj.attributes as AdvisorAttributes;
     const room = attr.recommended_room ?? "";
     const headline = t(lang, `states.${rec}.headline`, { room });
-    const rooms = (attr.rooms ?? []).slice();
+    const rooms = Array.isArray(attr.rooms) ? attr.rooms.slice() : [];
 
     return html`
       <ha-card>
@@ -101,19 +104,20 @@ export class LaundryAdvisorCard extends LitElement {
 
         <div class="infobar">
           ${this._window(attr)}
-          ${attr.daylight_left_h != null
-            ? html`<span class="muted"
-                >${t(lang, "ui.daylight_left", { h: attr.daylight_left_h })}</span
-              >`
-            : nothing}
+          ${
+            attr.daylight_left_h != null
+              ? html`<span class="muted"
+                  >${t(lang, "ui.daylight_left", { h: attr.daylight_left_h })}</span
+                >`
+              : nothing
+          }
         </div>
 
-        ${this._config.show_rooms && rooms.length
-          ? this._rooms(rooms)
-          : nothing}
-        ${this._config.show_reasons && attr.reason_codes?.length
-          ? html`<ul class="reasons">
-              ${attr.reason_codes.map(
+        ${this._config.show_rooms && rooms.length ? this._rooms(rooms) : nothing}
+        ${
+          this._config.show_reasons && attr.reason_codes?.length
+            ? html`<ul class="reasons">
+                ${attr.reason_codes.map(
                 (c) =>
                   html`<li>
                     ${t(lang, `reasons.${c.code}`, {
@@ -125,12 +129,13 @@ export class LaundryAdvisorCard extends LitElement {
                     })}
                   </li>`,
               )}
-            </ul>`
-          : attr.reasons?.length
-            ? html`<ul class="reasons">
-                ${attr.reasons.map((r) => html`<li>${r}</li>`)}
               </ul>`
-            : nothing}
+            : attr.reasons?.length
+              ? html`<ul class="reasons">
+                  ${attr.reasons.map((r) => html`<li>${r}</li>`)}
+                </ul>`
+              : nothing
+        }
       </ha-card>
     `;
   }
@@ -143,9 +148,11 @@ export class LaundryAdvisorCard extends LitElement {
       <div class="ring ${size}">
         <div
           class="dial"
-          style=${has
-            ? `background:conic-gradient(${c} ${s}%, var(--divider-color, #e0e0e0) ${s}%)`
-            : `background:var(--divider-color, #e0e0e0)`}
+          style=${
+            has
+              ? `background:conic-gradient(${c} ${s}%, var(--divider-color, #e0e0e0) ${s}%)`
+              : `background:var(--divider-color, #e0e0e0)`
+          }
         >
           <div class="hole"><span>${has ? Math.round(Number(score)) : "–"}</span></div>
         </div>
@@ -160,7 +167,8 @@ export class LaundryAdvisorCard extends LitElement {
     if (s == null || e == null)
       return html`<span class="muted">${t(this._lang, "ui.no_window")}</span>`;
     return html`<span class="chip">
-      <ha-icon icon="mdi:clock-outline"></ha-icon> ${s}–${e} Uhr
+      <ha-icon icon="mdi:clock-outline"></ha-icon>
+      ${t(this._lang, "ui.window", { start: s, end: e })}
     </span>`;
   }
 
@@ -170,8 +178,7 @@ export class LaundryAdvisorCard extends LitElement {
       <div class="rooms">
         <div class="rooms-title">${t(lang, "ui.rooms")}</div>
         ${rooms.map((r) => {
-          const chipClass =
-            r.status === "ok" ? "ok" : r.status === "mold_risk" ? "danger" : "warn";
+          const chipClass = r.status === "ok" ? "ok" : r.status === "mold_risk" ? "danger" : "warn";
           return html`
             <div class="room ${r.recommended ? "recommended" : ""}">
               <div class="room-bar">
@@ -193,12 +200,16 @@ export class LaundryAdvisorCard extends LitElement {
               <div class="room-sub muted">
                 ${r.humidity != null ? html`${r.humidity}% rF` : nothing}
                 ${r.temperature != null ? html`· ${r.temperature}°C` : nothing}
-                ${r.ventilation_useful != null
-                  ? html`·
-                      ${r.ventilation_useful
-                        ? t(lang, "ui.ventilate_hint")
-                        : t(lang, "ui.ventilate_useless")}`
-                  : nothing}
+                ${
+                  r.ventilation_useful != null
+                    ? html`·
+                      ${
+                        r.ventilation_useful
+                          ? t(lang, "ui.ventilate_hint")
+                          : t(lang, "ui.ventilate_useless")
+                      }`
+                    : nothing
+                }
                 ${r.has_dehumidifier ? html`· ${t(lang, "ui.has_dehumidifier")}` : nothing}
                 ${r.has_fan ? html`· ${t(lang, "ui.has_fan")}` : nothing}
               </div>

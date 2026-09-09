@@ -2,6 +2,7 @@ name: Build
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -30,6 +31,6 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: hacs/action@main
+      - uses: hacs/action@22.5.0
         with:
           category: plugin
