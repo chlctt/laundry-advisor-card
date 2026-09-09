@@ -1,75 +1,75 @@
-# Beispiel-Dashboard-View für den Wäschewetter-Advisor.
-# In den Lovelace-YAML-Modus einfügen oder als neue View übernehmen.
+# Example dashboard view for the Laundry Advisor.
+# Paste into your Lovelace YAML or adopt as a new view.
 
-title: Wäsche
-path: waesche
+title: Laundry
+path: laundry
 icon: mdi:tshirt-crew
 cards:
-  # --- Haupt-Card ---
+  # --- main card ---
   - type: custom:laundry-advisor-card
     entity: sensor.laundry_advisor
-    name: Wäschewetter
+    name: Laundry
     show_rooms: true
     show_reasons: true
 
-  # --- Steuer-Helfer ---
+  # --- control helper ---
   - type: entities
-    title: Steuerung
+    title: Control
     entities:
-      - entity: input_boolean.waesche_gewaschen
-        name: Wäsche ist gewaschen
-      # optional, falls in der Notify-Automation genutzt:
-      # - fan.waschkeller_ventilator
-      # - switch.waschkeller_abluft
+      - entity: input_boolean.laundry_washed
+        name: Laundry is washed
+      # optional, if used by the notify automation:
+      # - fan.basement_fan
+      # - switch.basement_dehumidifier
 
-  # --- Fallback / Detailansicht ohne die Custom-Card ---
+  # --- fallback / detail view without the custom card ---
   - type: entities
-    title: Advisor – Rohwerte
+    title: Advisor – raw values
     entities:
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: headline
-        name: Empfehlung
+        name: Recommendation
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: outdoor_score
-        name: Outdoor-Score heute
+        name: Outdoor score today
         suffix: " / 100"
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: outdoor_score_tomorrow
-        name: Outdoor-Score morgen
+        name: Outdoor score tomorrow
         suffix: " / 100"
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: outdoor_score_day_after
-        name: Outdoor-Score übermorgen
+        name: Outdoor score day after
         suffix: " / 100"
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: best_window_start_hour
-        name: Fenster ab (Uhr)
+        name: Window from (hour)
       - type: attribute
         entity: sensor.laundry_advisor
         attribute: daylight_left_h
-        name: Tageslicht übrig (h)
+        name: Daylight left (h)
 
-  # --- Debug: Raum-Bewertung ---
+  # --- debug: room assessment ---
   - type: entities
-    title: Räume (Debug)
+    title: Rooms (debug)
     entities:
       - entity: sensor.laundry_advisor
         type: attribute
         attribute: recommended_room
-        name: Empfohlener Raum
+        name: Recommended room
       - entity: sensor.laundry_advisor
         type: attribute
         attribute: rooms
-        name: rooms-Objekt
+        name: rooms object
 
-  # --- Verlauf des Scores (optional, Kern-HA-Card) ---
+  # --- score history (optional, core HA card) ---
   - type: history-graph
-    title: Outdoor-Score Verlauf
+    title: Outdoor score history
     hours_to_show: 72
     entities:
       - entity: sensor.laundry_advisor

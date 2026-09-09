@@ -1,54 +1,54 @@
-# Laundry Advisor Card / Wäschewetter-Card
+# Laundry Advisor Card
 
-Lovelace-Card zur **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-advisor)**
-Blueprint: zeigt auf einen Blick, ob Wäsche **draußen**, **im Keller** oder
-**gar nicht heute** getrocknet werden sollte.
+Lovelace card for the **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-advisor)**
+blueprint: shows at a glance whether laundry should dry **outside**, in an
+**indoor room**, in the **tumble dryer**, or whether to **wait**.
 
-> **v0.2** (Branch `v0.2`): Raum-Liste + Ranking, zweisprachig (de/en).
-> Braucht Blueprint v0.2.
+> Status: **v0.2**. Needs blueprint v0.2. Bilingual (en/de) via `hass.language`,
+> fallback English.
 
-## Voraussetzung
+## Requirement
 
-Der Blueprint **ha-laundry-advisor** muss installiert sein und einen Sensor
-liefern (Default `sensor.laundry_advisor`) mit dem Empfehlungs-Zustand als
-State und den Detailwerten als Attributen.
+The **ha-laundry-advisor** blueprint (v0.2) must be installed and produce a
+sensor (default `sensor.laundry_advisor`) with the recommendation as its state
+and the details as attributes.
 
 ## Installation (HACS)
 
-1. HACS → ⋮ → *Benutzerdefinierte Repositories*
-2. Repo `https://github.com/chlctt/laundry-advisor-card`, Kategorie **Dashboard**
-3. Herunterladen, Seite neu laden.
+1. HACS → ⋮ → *Custom repositories*
+2. Repo `https://github.com/chlctt/laundry-advisor-card`, category **Dashboard**
+3. Download, reload the page.
 
-Manuell: `dist/laundry-advisor-card.js` nach `config/www/` kopieren und als
-Ressource (`/local/laundry-advisor-card.js`, Typ *JavaScript-Modul*) einbinden.
+Manual: copy `dist/laundry-advisor-card.js` to `config/www/` and add it as a
+resource (`/local/laundry-advisor-card.js`, type *JavaScript module*).
 
-## Nutzung
+## Usage
 
 ```yaml
 type: custom:laundry-advisor-card
 entity: sensor.laundry_advisor
 # optional:
-name: Wäschewetter
+name: Laundry
 show_rooms: true
 show_reasons: true
 ```
 
-Ein visueller Editor ist vorhanden.
+A visual editor is available.
 
-| Option | Default | Beschreibung |
+| Option | Default | Description |
 |---|---|---|
-| `entity` | – | Advisor-Sensor (Pflicht) |
-| `name` | State-Label | Überschrift |
-| `show_rooms` | `true` | Raum-Liste (Score, Status, Lüften/Ventilator/Entfeuchter) |
-| `show_reasons` | `true` | Begründungs-Liste |
+| `entity` | – | advisor sensor (required) |
+| `name` | state label | heading |
+| `show_rooms` | `true` | room list (score, status, airing/fan/dehumidifier) |
+| `show_reasons` | `true` | reason list |
 
-Aufbau: drei Score-Ringe (**Heute** groß, **Morgen** + **Übermorgen** klein),
-bestes Trockenfenster, dann die Raum-Liste mit dem empfohlenen Raum markiert.
+Layout: three score rings (**Today** large, **Tomorrow** + **Day after** small),
+best drying window, then the room list with the recommended room highlighted.
 
-**Sprache:** automatisch aus `hass.language` (de/en), Fallback Englisch –
-unabhängig vom `language`-Input des Blueprints.
+**Language:** taken from `hass.language` (en/de), fallback English – independent
+of the blueprint's `language` input.
 
-## Entwicklung
+## Development
 
 ```bash
 npm ci
@@ -56,9 +56,9 @@ npm run build      # -> dist/laundry-advisor-card.js
 npm run watch
 ```
 
-`dist/` wird committet (HACS lädt daraus) und bei jedem `v*`-Tag als
-Release-Asset angehängt.
+`dist/` is committed (HACS loads from it) and attached as a release asset on
+every `v*` tag.
 
-## Lizenz
+## Licence
 
-MIT – siehe [LICENSE](LICENSE).
+MIT – see [LICENSE](LICENSE).

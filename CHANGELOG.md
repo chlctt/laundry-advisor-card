@@ -1,42 +1,41 @@
 # Changelog
 
-## [0.2.0] – unreleased (Branch `v0.2`)
+## [0.2.0] – 2026-09-09
 
 ### Added
-- **Raum-Liste**: zeigt jeden Trockenraum aus dem Blueprint mit Score-Balken,
-  Status-Chip (ok / zu feucht / zu kalt / Schimmel) und Hinweisen
-  (Lüften sinnvoll?, Ventilator, Entfeuchter). Der empfohlene Raum ist markiert.
-- **Zweisprachig (de/en)** über `hass.language` – Locale-Dateien
-  `src/localize/{de,en}.json`, Fallback Englisch. Übersetzt States, Headline,
-  `reason_codes`, Status-Chips.
-- Neue States `room_ventilate`, `room_dehumidify`, `best_effort`.
+- **Room list**: renders the blueprint's `rooms[]` – one row per room with a
+  score bar, status chip (ok / too humid / too cold / mould) and hints
+  (airing helps?, fan, dehumidifier). The recommended room is highlighted.
+- **Bilingual (en/de)** via `hass.language`, fallback English – locale files
+  `src/localize/{en,de}.json`. Translates states, headlines, `reason_codes`,
+  status chips, UI labels, editor.
+- New states `room_ventilate`, `room_dehumidify`, `best_effort`.
 
 ### Changed / Breaking
-- `show_cellar` → `show_rooms`. Braucht Blueprint **v0.2** (`rooms`-Attribut).
-- Headline/Labels kommen aus den Locale-Dateien statt aus `const.ts`.
+- `show_cellar` → `show_rooms`. Needs blueprint **v0.2** (`rooms` attribute).
+- Labels/headlines come from the locale files instead of `const.ts`.
+- English is the primary language.
 
 ## [0.1.2] – 2026-09-09
 
 ### Changed
-- Tagesvorschau-Balken entfernt. Stattdessen drei Score-Ringe:
-  **Heute** (groß) · **Morgen** · **Übermorgen** (beide klein, gleich groß).
-- Benötigt das neue Blueprint-Attribut `outdoor_score_day_after`
-  (ha-laundry-advisor ≥ 9da0ca1).
-- Config-Option `show_forecast` entfällt.
+- Removed the forecast bar chart. Three score rings instead:
+  **Today** (large), **Tomorrow** and **Day after** (small, equal size).
+- Needs the new blueprint attribute `outdoor_score_day_after`.
+- `show_forecast` option dropped.
 
 ## [0.1.1] – 2026-09-09
 
 ### Changed
-- Score-Ringe (Heute/Morgen) entfernt – die Tagesvorschau-Balken decken das ab.
-  Kopf ist jetzt kompakter: Empfehlung + bestes Trockenfenster + Tageslicht.
-- Erster Balken der Vorschau ist als „Heute" markiert und hervorgehoben.
+- Removed the Today/Tomorrow score rings (they duplicated the first two forecast
+  bars). Compact header instead (recommendation + best drying window + daylight
+  left). The first forecast bar is marked "Today" and highlighted.
 
 ## [0.1.0] – 2026-09-09
 
 ### Added
-- Erste Card-Version (v0.1): Empfehlungs-Header mit Icon/Headline,
-  bestes Zeitfenster, Tagesvorschau-Balken,
-  Keller-Zeile (rF, Taupunktdifferenz, Lüften-Hinweis, geschätzte
-  Wandfeuchte, Schimmel-Badge), Begründungs-Liste.
-- Visueller Editor (`ha-form`).
-- HACS-Plugin-Setup, Build- und Release-Workflow.
+- First card version: recommendation header with icon/headline, best time
+  window, forecast bars, cellar row (humidity, dew-point delta, ventilation
+  hint, wall-humidity estimate, mould badge), reason list.
+- Visual editor (`ha-form`).
+- HACS plugin setup, build and release workflows.
