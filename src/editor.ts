@@ -11,7 +11,6 @@ const SCHEMA = [
   { name: "name", selector: { text: {} } },
   {
     type: "grid",
-    name: "",
     schema: [
       { name: "show_rooms", selector: { boolean: {} } },
       { name: "show_reasons", selector: { boolean: {} } },

@@ -1,15 +1,49 @@
 {
   "states": {
-    "hang_outside_now": { "label": "Raus damit", "headline": "Raus damit – heute trocknet die Wäsche draußen gut." },
-    "hang_outside_later": { "label": "Heute später", "headline": "Heute noch möglich, aber das Fenster ist knapp." },
-    "outside_marginal": { "label": "Draußen, beobachten", "headline": "Draußen geht, aber behalte den Himmel im Auge." },
-    "wait_for_tomorrow": { "label": "Auf den Ständer", "headline": "Heute auf den Ständer – morgen wird es draußen deutlich besser." },
-    "defer_wash": { "label": "Waschen verschieben", "headline": "Mit dem Waschen bis morgen warten lohnt sich." },
-    "room_ventilate": { "label": "{room}: lüften", "headline": "Bester Ort: {room} – Fenster stoßlüften und Ventilator an." },
-    "room_dehumidify": { "label": "{room}: Entfeuchter", "headline": "Bester Ort: {room} – mit Entfeuchter (Lüften bringt gerade nichts)." },
-    "dryer_recommended": { "label": "Trockner", "headline": "Kein guter Trockenort – ab in den Wäschetrockner." },
-    "best_effort": { "label": "Notlösung: {room}", "headline": "Kein wirklich guter Ort. Am ehesten: {room} – dort gut lüften." },
-    "mold_risk": { "label": "Schimmelgefahr", "headline": "Achtung: alle Räume zu feucht – nichts Nasses reinhängen." },
+    "hang_outside_now": {
+      "label": "Raus damit",
+      "headline": "Raus damit – heute trocknet die Wäsche draußen gut."
+    },
+    "hang_outside_later": {
+      "label": "Heute später",
+      "headline": "Heute noch möglich, aber das Fenster ist knapp."
+    },
+    "outside_marginal": {
+      "label": "Draußen, beobachten",
+      "headline": "Draußen geht, aber behalte den Himmel im Auge."
+    },
+    "wait_for_tomorrow": {
+      "label": "Auf den Ständer",
+      "headline": "Heute auf den Ständer – morgen wird es draußen deutlich besser."
+    },
+    "defer_wash": {
+      "label": "Waschen verschieben",
+      "headline": "Mit dem Waschen bis morgen warten lohnt sich."
+    },
+    "room_ok": {
+      "label": "{room}",
+      "headline": "Bester Ort: {room} – warm und trocken genug, ein Ventilator beschleunigt."
+    },
+    "room_ventilate": {
+      "label": "{room}: lüften",
+      "headline": "Bester Ort: {room} – Fenster stoßlüften und Ventilator an."
+    },
+    "room_dehumidify": {
+      "label": "{room}: Entfeuchter",
+      "headline": "Bester Ort: {room} – mit Entfeuchter (Lüften bringt gerade nichts)."
+    },
+    "dryer_recommended": {
+      "label": "Trockner",
+      "headline": "Kein guter Trockenort – ab in den Wäschetrockner."
+    },
+    "best_effort": {
+      "label": "Notlösung: {room}",
+      "headline": "Kein wirklich guter Ort. Am ehesten: {room} – dort gut lüften."
+    },
+    "mold_risk": {
+      "label": "Schimmelgefahr",
+      "headline": "Achtung: alle Räume zu feucht – nichts Nasses reinhängen."
+    },
     "unknown": { "label": "Unbekannt", "headline": "Noch keine Bewertung möglich." }
   },
   "reasons": {
@@ -19,10 +53,12 @@
     "tomorrow_better": "Morgen deutlich besser ({t} statt {d}).",
     "room_best": "{n}: bester Innenraum (Score {s}).",
     "room_too_humid": "{n} bei {rh}% rF – über der Grenze.",
+    "room_dry_enough": "{n} bei {rh}% rF ist trocken genug.",
     "vent_useful": "Außenluft ist trockener – Lüften hilft.",
     "vent_useless": "Außenluft nicht trockener – Lüften bringt nichts.",
     "no_room": "Kein Innenraum unter der Feuchtegrenze.",
     "no_dryer": "Kein Wäschetrockner konfiguriert.",
+    "no_forecast": "Keine Wettervorhersage verfügbar.",
     "mold": "{n}: Schimmelgefahr (rF über 80%)."
   },
   "room_status": {
@@ -36,6 +72,7 @@
     "tomorrow": "Morgen",
     "day_after": "Übermorgen",
     "no_window": "Kein Trockenfenster heute",
+    "window": "{start}:00–{end}:00 Uhr",
     "daylight_left": "{h} h Tageslicht übrig",
     "rooms": "Räume",
     "recommended": "empfohlen",

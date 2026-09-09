@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.2.1] – 2026-09-09
+
+### Fixed
+- Time window no longer renders the German word "Uhr" in English (locale key
+  `ui.window`).
+- `rooms` is checked with `Array.isArray` before `.map` – a non-array attribute
+  no longer throws.
+- `t()` falls back to an empty string instead of the raw key path when a key is
+  missing (blueprint newer than the card).
+- `getCardSize()` now scales with the number of rooms.
+- Card picker description is in English.
+
+### Added
+- New state `room_ok` ("warm & dry enough").
+
+### CI
+- Pinned `hacs/action`; `build.yml` runs on `push` only for `main` (PRs still
+  covered); release workflow syncs the version before building.
+
 ## [0.2.0] – 2026-09-09
 
 ### Added
