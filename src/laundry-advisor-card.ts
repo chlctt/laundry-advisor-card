@@ -58,7 +58,7 @@ export class LaundryAdvisorCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 4;
+    return 3;
   }
 
   protected render(): TemplateResult | typeof nothing {
@@ -75,30 +75,22 @@ export class LaundryAdvisorCard extends LitElement {
       : "unknown";
     const meta = STATE_META[rec];
     const attr = stateObj.attributes as AdvisorAttributes;
-    const today = Number(attr.outdoor_score ?? 0);
-    const tomorrow = Number(attr.outdoor_score_tomorrow ?? 0);
 
     return html`
       <ha-card>
         <div class="header" style=${`--accent:${meta.color}`}>
-          <div class="badge">
-            <ha-icon .icon=${meta.icon}></ha-icon>
-          </div>
+          <div class="badge"><ha-icon .icon=${meta.icon}></ha-icon></div>
           <div class="headline">
             <div class="title">${this._config.name ?? meta.label}</div>
             <div class="sub">${attr.headline ?? ""}</div>
           </div>
         </div>
 
-        <div class="scores">
-          ${this._scoreRing("Heute", today)}
-          ${this._scoreRing("Morgen", tomorrow, true)}
-          <div class="window">
-            ${this._renderWindow(attr)}
-            ${attr.daylight_left_h != null
-              ? html`<div class="muted">${attr.daylight_left_h} h Tageslicht übrig</div>`
-              : nothing}
-          </div>
+        <div class="infobar">
+          ${this._renderWindow(attr)}
+          ${attr.daylight_left_h != null
+            ? html`<span class="muted">${attr.daylight_left_h} h Tageslicht übrig</span>`
+            : nothing}
         </div>
 
         ${this._config.show_forecast && attr.forecast_days?.length
@@ -114,47 +106,31 @@ export class LaundryAdvisorCard extends LitElement {
     `;
   }
 
-  private _scoreRing(label: string, score: number, small = false): TemplateResult {
-    const c = scoreColor(score);
-    const pct = Math.max(0, Math.min(100, score));
-    return html`
-      <div class="ring ${small ? "small" : ""}">
-        <div
-          class="dial"
-          style=${`background:conic-gradient(${c} ${pct}%, var(--divider-color, #e0e0e0) ${pct}%)`}
-        >
-          <div class="hole"><span>${Math.round(score)}</span></div>
-        </div>
-        <div class="ring-label">${label}</div>
-      </div>
-    `;
-  }
-
-  private _renderWindow(attr: AdvisorAttributes): TemplateResult | typeof nothing {
+  private _renderWindow(attr: AdvisorAttributes): TemplateResult {
     const s = attr.best_window_start_hour;
     const e = attr.best_window_end_hour;
-    if (s == null || e == null) return html`<div class="muted">Kein Fenster heute</div>`;
-    return html`<div class="chip">
+    if (s == null || e == null) return html`<span class="muted">Kein Trockenfenster heute</span>`;
+    return html`<span class="chip">
       <ha-icon icon="mdi:clock-outline"></ha-icon> ${s}–${e} Uhr
-    </div>`;
+    </span>`;
   }
 
   private _renderForecast(days: AdvisorAttributes["forecast_days"] = []): TemplateResult {
+    const todayStr = new Date().toISOString().slice(0, 10);
     return html`
       <div class="forecast">
         ${days.map((d) => {
           const dt = new Date(d.date + "T12:00:00");
-          const h = Math.max(4, Math.min(100, Number(d.score))); // min bar height
+          const score = Number(d.score);
+          const h = Math.max(4, Math.min(100, score));
+          const isToday = d.date === todayStr;
           return html`
-            <div class="fday">
+            <div class="fday ${isToday ? "today" : ""}">
               <div class="bar-track">
-                <div
-                  class="bar"
-                  style=${`height:${h}%;background:${scoreColor(Number(d.score))}`}
-                ></div>
+                <div class="bar" style=${`height:${h}%;background:${scoreColor(score)}`}></div>
               </div>
-              <div class="fscore">${Math.round(Number(d.score))}</div>
-              <div class="fdow">${WEEKDAY[dt.getDay()]}</div>
+              <div class="fscore">${Math.round(score)}</div>
+              <div class="fdow">${isToday ? "Heute" : WEEKDAY[dt.getDay()]}</div>
             </div>
           `;
         })}
@@ -185,9 +161,7 @@ export class LaundryAdvisorCard extends LitElement {
             ? html`Taupunkt außen ${dd} K ${Number(dd) < 0 ? "unter" : "über"} Keller ·`
             : nothing}
           Lüften: ${c.ventilation_useful ? "sinnvoll" : "bringt nichts"}
-          ${c.surface_rh_estimate != null
-            ? html`· Wand ~${c.surface_rh_estimate}%`
-            : nothing}
+          ${c.surface_rh_estimate != null ? html`· Wand ~${c.surface_rh_estimate}%` : nothing}
         </div>
       </div>
     `;
@@ -230,54 +204,12 @@ export class LaundryAdvisorCard extends LitElement {
       font-size: 0.9rem;
       color: var(--secondary-text-color);
     }
-    .scores {
+    .infobar {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 10px;
       flex-wrap: wrap;
-    }
-    .ring {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-    .dial {
-      width: 74px;
-      height: 74px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-    }
-    .ring.small .dial {
-      width: 54px;
-      height: 54px;
-    }
-    .hole {
-      width: 70%;
-      height: 70%;
-      border-radius: 50%;
-      background: var(--card-background-color, #fff);
-      display: grid;
-      place-items: center;
-    }
-    .hole span {
-      font-weight: 700;
-      color: var(--primary-text-color);
-    }
-    .ring.small .hole span {
-      font-size: 0.85rem;
-    }
-    .ring-label {
-      font-size: 0.75rem;
-      color: var(--secondary-text-color);
-    }
-    .window {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-left: auto;
-      align-items: flex-end;
+      margin-top: -2px;
     }
     .chip {
       display: inline-flex;
@@ -294,6 +226,7 @@ export class LaundryAdvisorCard extends LitElement {
     }
     .muted {
       color: var(--secondary-text-color);
+      font-size: 0.85rem;
     }
     .small {
       font-size: 0.8rem;
@@ -312,7 +245,7 @@ export class LaundryAdvisorCard extends LitElement {
     }
     .bar-track {
       width: 100%;
-      height: 60px;
+      height: 68px;
       display: flex;
       align-items: flex-end;
       background: var(--divider-color, #ececec);
@@ -324,13 +257,21 @@ export class LaundryAdvisorCard extends LitElement {
       border-radius: 4px 4px 0 0;
     }
     .fscore {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 600;
       color: var(--primary-text-color);
     }
     .fdow {
       font-size: 0.72rem;
       color: var(--secondary-text-color);
+    }
+    .fday.today .fdow {
+      color: var(--primary-color, #1e88e5);
+      font-weight: 600;
+    }
+    .fday.today .bar-track {
+      outline: 2px solid var(--primary-color, #1e88e5);
+      outline-offset: 1px;
     }
     .cellar {
       border-top: 1px solid var(--divider-color, #e0e0e0);

@@ -1,10 +1,17 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.1] – 2026-09-09
+
+### Changed
+- Score-Ringe (Heute/Morgen) entfernt – die Tagesvorschau-Balken decken das ab.
+  Kopf ist jetzt kompakter: Empfehlung + bestes Trockenfenster + Tageslicht.
+- Erster Balken der Vorschau ist als „Heute" markiert und hervorgehoben.
+
+## [0.1.0] – 2026-09-09
 
 ### Added
 - Erste Card-Version (v0.1): Empfehlungs-Header mit Icon/Headline,
-  Score-Ringe heute/morgen, bestes Zeitfenster, Tagesvorschau-Balken,
+  bestes Zeitfenster, Tagesvorschau-Balken,
   Keller-Zeile (rF, Taupunktdifferenz, Lüften-Hinweis, geschätzte
   Wandfeuchte, Schimmel-Badge), Begründungs-Liste.
 - Visueller Editor (`ha-form`).

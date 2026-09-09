@@ -4,8 +4,7 @@ Lovelace-Card zur **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-ad
 Blueprint: zeigt auf einen Blick, ob Wäsche **draußen**, **im Keller** oder
 **gar nicht heute** getrocknet werden sollte.
 
-> Status: **MVP / v0.1** – funktioniert, Feinschliff folgt. Screenshot folgt,
-> sobald der Blueprint auf einer Instanz läuft.
+> Status: **MVP** – läuft, Feinschliff folgt.
 
 ## Voraussetzung
 
@@ -15,9 +14,9 @@ State und den Detailwerten als Attributen.
 
 ## Installation (HACS)
 
-1. HACS → *Frontend* → ⋮ → *Benutzerdefinierte Repositories*
-2. Repo `https://github.com/chlctt/laundry-advisor-card`, Kategorie **Lovelace**
-3. Installieren, Seite neu laden.
+1. HACS → ⋮ → *Benutzerdefinierte Repositories*
+2. Repo `https://github.com/chlctt/laundry-advisor-card`, Kategorie **Dashboard**
+3. Herunterladen, Seite neu laden.
 
 Manuell: `dist/laundry-advisor-card.js` nach `config/www/` kopieren und als
 Ressource (`/local/laundry-advisor-card.js`, Typ *JavaScript-Modul*) einbinden.
@@ -40,7 +39,7 @@ Ein visueller Editor ist vorhanden.
 |---|---|---|
 | `entity` | – | Advisor-Sensor (Pflicht) |
 | `name` | State-Label | Überschrift |
-| `show_forecast` | `true` | Tagesvorschau-Balken |
+| `show_forecast` | `true` | Tagesvorschau-Balken (erster = heute) |
 | `show_cellar` | `true` | Keller-Zeile (rF, Taupunktdifferenz, Lüften, Wandfeuchte) |
 | `show_reasons` | `true` | Begründungs-Liste |
 
