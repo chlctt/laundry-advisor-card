@@ -4,7 +4,8 @@ Lovelace-Card zur **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-ad
 Blueprint: zeigt auf einen Blick, ob Wäsche **draußen**, **im Keller** oder
 **gar nicht heute** getrocknet werden sollte.
 
-> Status: **MVP** – läuft, Feinschliff folgt.
+> **v0.2** (Branch `v0.2`): Raum-Liste + Ranking, zweisprachig (de/en).
+> Braucht Blueprint v0.2.
 
 ## Voraussetzung
 
@@ -28,7 +29,7 @@ type: custom:laundry-advisor-card
 entity: sensor.laundry_advisor
 # optional:
 name: Wäschewetter
-show_cellar: true
+show_rooms: true
 show_reasons: true
 ```
 
@@ -38,12 +39,14 @@ Ein visueller Editor ist vorhanden.
 |---|---|---|
 | `entity` | – | Advisor-Sensor (Pflicht) |
 | `name` | State-Label | Überschrift |
-| `show_cellar` | `true` | Keller-Zeile (rF, Taupunktdifferenz, Lüften, Wandfeuchte) |
+| `show_rooms` | `true` | Raum-Liste (Score, Status, Lüften/Ventilator/Entfeuchter) |
 | `show_reasons` | `true` | Begründungs-Liste |
 
-Die Card zeigt drei Score-Ringe: **Heute** (groß), **Morgen** und **Übermorgen**
-(klein). Dafür muss der Blueprint das Attribut `outdoor_score_day_after` liefern
-(ha-laundry-advisor ≥ v-mit-übermorgen).
+Aufbau: drei Score-Ringe (**Heute** groß, **Morgen** + **Übermorgen** klein),
+bestes Trockenfenster, dann die Raum-Liste mit dem empfohlenen Raum markiert.
+
+**Sprache:** automatisch aus `hass.language` (de/en), Fallback Englisch –
+unabhängig vom `language`-Input des Blueprints.
 
 ## Entwicklung
 

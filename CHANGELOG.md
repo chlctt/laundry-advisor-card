@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0] – unreleased (Branch `v0.2`)
+
+### Added
+- **Raum-Liste**: zeigt jeden Trockenraum aus dem Blueprint mit Score-Balken,
+  Status-Chip (ok / zu feucht / zu kalt / Schimmel) und Hinweisen
+  (Lüften sinnvoll?, Ventilator, Entfeuchter). Der empfohlene Raum ist markiert.
+- **Zweisprachig (de/en)** über `hass.language` – Locale-Dateien
+  `src/localize/{de,en}.json`, Fallback Englisch. Übersetzt States, Headline,
+  `reason_codes`, Status-Chips.
+- Neue States `room_ventilate`, `room_dehumidify`, `best_effort`.
+
+### Changed / Breaking
+- `show_cellar` → `show_rooms`. Braucht Blueprint **v0.2** (`rooms`-Attribut).
+- Headline/Labels kommen aus den Locale-Dateien statt aus `const.ts`.
+
 ## [0.1.2] – 2026-09-09
 
 ### Changed

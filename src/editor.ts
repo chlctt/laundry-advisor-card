@@ -3,24 +3,36 @@ import { customElement, property, state } from "lit/decorators.js";
 import type { HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
 
 import { EDITOR_TAG } from "./const";
+import { pickLang } from "./localize";
 import type { LaundryAdvisorCardConfig } from "./types";
 
 const SCHEMA = [
-  {
-    name: "entity",
-    required: true,
-    selector: { entity: { domain: "sensor" } },
-  },
+  { name: "entity", required: true, selector: { entity: { domain: "sensor" } } },
   { name: "name", selector: { text: {} } },
   {
     type: "grid",
     name: "",
     schema: [
-      { name: "show_cellar", selector: { boolean: {} } },
+      { name: "show_rooms", selector: { boolean: {} } },
       { name: "show_reasons", selector: { boolean: {} } },
     ],
   },
 ];
+
+const LABELS: Record<string, Record<string, string>> = {
+  de: {
+    entity: "Advisor-Sensor",
+    name: "Titel (optional)",
+    show_rooms: "Raum-Liste",
+    show_reasons: "Begründungen",
+  },
+  en: {
+    entity: "Advisor sensor",
+    name: "Title (optional)",
+    show_rooms: "Room list",
+    show_reasons: "Reasons",
+  },
+};
 
 @customElement(EDITOR_TAG)
 export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCardEditor {
@@ -32,13 +44,8 @@ export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCard
   }
 
   private _label = (schema: { name: string }): string => {
-    const map: Record<string, string> = {
-      entity: "Advisor-Sensor",
-      name: "Titel (optional)",
-      show_cellar: "Keller-Zeile",
-      show_reasons: "Begründungen",
-    };
-    return map[schema.name] ?? schema.name;
+    const lang = pickLang(this.hass);
+    return (LABELS[lang] ?? LABELS.en)[schema.name] ?? schema.name;
   };
 
   protected render(): TemplateResult | typeof nothing {

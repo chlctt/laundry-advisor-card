@@ -10,7 +10,8 @@ import {
   scoreColor,
   type Recommendation,
 } from "./const";
-import type { AdvisorAttributes, LaundryAdvisorCardConfig } from "./types";
+import { pickLang, t } from "./localize";
+import type { AdvisorAttributes, LaundryAdvisorCardConfig, RoomInfo } from "./types";
 import "./editor";
 
 /* eslint-disable no-console */
@@ -25,7 +26,7 @@ console.info(
 (window as any).customCards.push({
   type: CARD_TAG,
   name: "Laundry Advisor Card",
-  description: "Wäschewetter – draußen, Keller oder warten?",
+  description: "Wäschewetter – draußen, Raum, Trockner oder warten?",
   preview: true,
   documentationURL: "https://github.com/chlctt/laundry-advisor-card",
 });
@@ -40,135 +41,170 @@ export class LaundryAdvisorCard extends LitElement {
   }
 
   public static getStubConfig(): Partial<LaundryAdvisorCardConfig> {
-    return { entity: "sensor.laundry_advisor", show_cellar: true };
+    return { entity: "sensor.laundry_advisor", show_rooms: true };
   }
 
   public setConfig(config: LaundryAdvisorCardConfig): void {
     if (!config || !config.entity) {
-      throw new Error("Bitte eine Advisor-Sensor-Entität angeben (entity).");
+      throw new Error("Please set an advisor sensor entity (entity).");
     }
-    this._config = {
-      show_cellar: true,
-      show_reasons: true,
-      ...config,
-    };
+    this._config = { show_rooms: true, show_reasons: true, ...config };
   }
 
   public getCardSize(): number {
-    return 3;
+    return 4;
+  }
+
+  private get _lang(): string {
+    return pickLang(this.hass);
   }
 
   protected render(): TemplateResult | typeof nothing {
     if (!this._config || !this.hass) return nothing;
+    const lang = this._lang;
     const stateObj = this.hass.states[this._config.entity];
     if (!stateObj) {
       return html`<ha-card
-        ><div class="warn">Entität ${this._config.entity} nicht gefunden.</div></ha-card
+        ><div class="warn">
+          ${t(lang, "ui.entity_not_found", { entity: this._config.entity })}
+        </div></ha-card
       >`;
     }
 
-    const rec = (stateObj.state as Recommendation) in STATE_META
-      ? (stateObj.state as Recommendation)
-      : "unknown";
+    const rec: Recommendation =
+      (stateObj.state as Recommendation) in STATE_META
+        ? (stateObj.state as Recommendation)
+        : "unknown";
     const meta = STATE_META[rec];
     const attr = stateObj.attributes as AdvisorAttributes;
-    const today = attr.outdoor_score;
-    const tomorrow = attr.outdoor_score_tomorrow;
-    const dayAfter = attr.outdoor_score_day_after;
+    const room = attr.recommended_room ?? "";
+    const headline = t(lang, `states.${rec}.headline`, { room });
+    const rooms = (attr.rooms ?? []).slice();
 
     return html`
       <ha-card>
         <div class="header" style=${`--accent:${meta.color}`}>
           <div class="badge"><ha-icon .icon=${meta.icon}></ha-icon></div>
           <div class="headline">
-            <div class="title">${this._config.name ?? meta.label}</div>
-            <div class="sub">${attr.headline ?? ""}</div>
+            <div class="title">
+              ${this._config.name ?? t(lang, `states.${rec}.label`, { room })}
+            </div>
+            <div class="sub">${headline}</div>
           </div>
         </div>
 
         <div class="scores">
-          ${this._ring("Heute", today, "lg")}
-          ${this._ring("Morgen", tomorrow, "sm")}
-          ${this._ring("Übermorgen", dayAfter, "sm")}
+          ${this._ring(t(lang, "ui.today"), attr.outdoor_score, "lg")}
+          ${this._ring(t(lang, "ui.tomorrow"), attr.outdoor_score_tomorrow, "sm")}
+          ${this._ring(t(lang, "ui.day_after"), attr.outdoor_score_day_after, "sm")}
         </div>
 
         <div class="infobar">
-          ${this._renderWindow(attr)}
+          ${this._window(attr)}
           ${attr.daylight_left_h != null
-            ? html`<span class="muted">${attr.daylight_left_h} h Tageslicht übrig</span>`
+            ? html`<span class="muted"
+                >${t(lang, "ui.daylight_left", { h: attr.daylight_left_h })}</span
+              >`
             : nothing}
         </div>
 
-        ${this._config.show_cellar && attr.cellar ? this._renderCellar(attr.cellar) : nothing}
-        ${this._config.show_reasons && attr.reasons?.length
-          ? html`<ul class="reasons">
-              ${attr.reasons.map((r) => html`<li>${r}</li>`)}
-            </ul>`
+        ${this._config.show_rooms && rooms.length
+          ? this._rooms(rooms)
           : nothing}
+        ${this._config.show_reasons && attr.reason_codes?.length
+          ? html`<ul class="reasons">
+              ${attr.reason_codes.map(
+                (c) =>
+                  html`<li>
+                    ${t(lang, `reasons.${c.code}`, {
+                      s: c.s,
+                      t: c.t,
+                      d: c.d,
+                      n: c.n,
+                      rh: c.rh,
+                    })}
+                  </li>`,
+              )}
+            </ul>`
+          : attr.reasons?.length
+            ? html`<ul class="reasons">
+                ${attr.reasons.map((r) => html`<li>${r}</li>`)}
+              </ul>`
+            : nothing}
       </ha-card>
     `;
   }
 
   private _ring(label: string, score: number | undefined, size: "lg" | "sm"): TemplateResult {
-    if (score == null || isNaN(Number(score))) {
-      return html`
-        <div class="ring ${size}">
-          <div class="dial" style="background:var(--divider-color, #e0e0e0)">
-            <div class="hole"><span>–</span></div>
-          </div>
-          <div class="ring-label">${label}</div>
-        </div>
-      `;
-    }
-    const s = Math.max(0, Math.min(100, Number(score)));
-    const c = scoreColor(s);
+    const has = score != null && !isNaN(Number(score));
+    const s = has ? Math.max(0, Math.min(100, Number(score))) : 0;
+    const c = has ? scoreColor(s) : "var(--divider-color, #e0e0e0)";
     return html`
       <div class="ring ${size}">
         <div
           class="dial"
-          style=${`background:conic-gradient(${c} ${s}%, var(--divider-color, #e0e0e0) ${s}%)`}
+          style=${has
+            ? `background:conic-gradient(${c} ${s}%, var(--divider-color, #e0e0e0) ${s}%)`
+            : `background:var(--divider-color, #e0e0e0)`}
         >
-          <div class="hole"><span>${Math.round(Number(score))}</span></div>
+          <div class="hole"><span>${has ? Math.round(Number(score)) : "–"}</span></div>
         </div>
         <div class="ring-label">${label}</div>
       </div>
     `;
   }
 
-  private _renderWindow(attr: AdvisorAttributes): TemplateResult {
+  private _window(attr: AdvisorAttributes): TemplateResult {
     const s = attr.best_window_start_hour;
     const e = attr.best_window_end_hour;
-    if (s == null || e == null) return html`<span class="muted">Kein Trockenfenster heute</span>`;
+    if (s == null || e == null)
+      return html`<span class="muted">${t(this._lang, "ui.no_window")}</span>`;
     return html`<span class="chip">
       <ha-icon icon="mdi:clock-outline"></ha-icon> ${s}–${e} Uhr
     </span>`;
   }
 
-  private _renderCellar(c: NonNullable<AdvisorAttributes["cellar"]>): TemplateResult {
-    const dd =
-      c.dewpoint_outdoor != null && c.dewpoint_cellar != null
-        ? (c.dewpoint_outdoor - c.dewpoint_cellar).toFixed(1)
-        : null;
+  private _rooms(rooms: RoomInfo[]): TemplateResult {
+    const lang = this._lang;
     return html`
-      <div class="cellar">
-        <div class="cellar-row">
-          <ha-icon icon="mdi:home-floor-b"></ha-icon>
-          <span>Keller</span>
-          ${c.humidity != null ? html`<b>${c.humidity}%</b>` : nothing}
-          ${c.temperature != null ? html`<span class="muted">${c.temperature}°C</span>` : nothing}
-          ${c.mold_risk
-            ? html`<span class="tag danger">Schimmel</span>`
-            : c.suitable
-              ? html`<span class="tag ok">nutzbar</span>`
-              : html`<span class="tag warn">ungünstig</span>`}
-        </div>
-        <div class="cellar-row muted small">
-          ${dd != null
-            ? html`Taupunkt außen ${dd} K ${Number(dd) < 0 ? "unter" : "über"} Keller ·`
-            : nothing}
-          Lüften: ${c.ventilation_useful ? "sinnvoll" : "bringt nichts"}
-          ${c.surface_rh_estimate != null ? html`· Wand ~${c.surface_rh_estimate}%` : nothing}
-        </div>
+      <div class="rooms">
+        <div class="rooms-title">${t(lang, "ui.rooms")}</div>
+        ${rooms.map((r) => {
+          const chipClass =
+            r.status === "ok" ? "ok" : r.status === "mold_risk" ? "danger" : "warn";
+          return html`
+            <div class="room ${r.recommended ? "recommended" : ""}">
+              <div class="room-bar">
+                <div
+                  class="room-bar-fill"
+                  style=${`width:${Math.max(3, Math.min(100, r.score))}%;background:${scoreColor(
+                    r.score,
+                  )}`}
+                ></div>
+              </div>
+              <div class="room-main">
+                <span class="room-name">
+                  ${r.recommended ? html`<ha-icon icon="mdi:star" class="star"></ha-icon>` : nothing}
+                  ${r.name}
+                </span>
+                <span class="room-score">${Math.round(r.score)}</span>
+                <span class="tag ${chipClass}">${t(lang, `room_status.${r.status}`)}</span>
+              </div>
+              <div class="room-sub muted">
+                ${r.humidity != null ? html`${r.humidity}% rF` : nothing}
+                ${r.temperature != null ? html`· ${r.temperature}°C` : nothing}
+                ${r.ventilation_useful != null
+                  ? html`·
+                      ${r.ventilation_useful
+                        ? t(lang, "ui.ventilate_hint")
+                        : t(lang, "ui.ventilate_useless")}`
+                  : nothing}
+                ${r.has_dehumidifier ? html`· ${t(lang, "ui.has_dehumidifier")}` : nothing}
+                ${r.has_fan ? html`· ${t(lang, "ui.has_fan")}` : nothing}
+              </div>
+            </div>
+          `;
+        })}
       </div>
     `;
   }
@@ -280,30 +316,69 @@ export class LaundryAdvisorCard extends LitElement {
       color: var(--secondary-text-color);
       font-size: 0.85rem;
     }
-    .small {
-      font-size: 0.8rem;
-    }
-    .cellar {
+    .rooms {
       border-top: 1px solid var(--divider-color, #e0e0e0);
       padding-top: 10px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 8px;
     }
-    .cellar-row {
+    .rooms-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--secondary-text-color);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .room {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+    .room.recommended {
+      background: color-mix(in srgb, var(--primary-color, #1e88e5) 12%, transparent);
+    }
+    .room-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--divider-color, #ececec);
+      overflow: hidden;
+    }
+    .room-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+    .room-main {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
-    .cellar-row ha-icon {
-      --mdc-icon-size: 18px;
-      color: var(--secondary-text-color);
+    .room-name {
+      font-weight: 600;
+      color: var(--primary-text-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .star {
+      --mdc-icon-size: 15px;
+      color: var(--primary-color, #1e88e5);
+    }
+    .room-score {
+      font-weight: 700;
+      color: var(--primary-text-color);
+      font-size: 0.9rem;
+    }
+    .room-sub {
+      font-size: 0.78rem;
     }
     .tag {
       margin-left: auto;
       padding: 1px 8px;
       border-radius: 10px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
     }
     .tag.ok {
       background: #43a04722;

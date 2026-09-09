@@ -9,7 +9,7 @@ cards:
   - type: custom:laundry-advisor-card
     entity: sensor.laundry_advisor
     name: Wäschewetter
-    show_cellar: true
+    show_rooms: true
     show_reasons: true
 
   # --- Steuer-Helfer ---
@@ -54,16 +54,18 @@ cards:
         attribute: daylight_left_h
         name: Tageslicht übrig (h)
 
-  # --- Keller-Klima (Kontext) ---
+  # --- Debug: Raum-Bewertung ---
   - type: entities
-    title: Waschkeller
+    title: Räume (Debug)
     entities:
-      - sensor.umgebungssensor_waschkeller_temperature
-      - sensor.umgebungssensor_waschkeller_humidity
       - entity: sensor.laundry_advisor
         type: attribute
-        attribute: cellar
-        name: Keller-Objekt (Debug)
+        attribute: recommended_room
+        name: Empfohlener Raum
+      - entity: sensor.laundry_advisor
+        type: attribute
+        attribute: rooms
+        name: rooms-Objekt
 
   # --- Verlauf des Scores (optional, Kern-HA-Card) ---
   - type: history-graph
