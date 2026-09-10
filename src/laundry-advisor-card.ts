@@ -81,7 +81,8 @@ export class LaundryAdvisorCard extends LitElement {
     const meta = STATE_META[rec];
     const attr = stateObj.attributes as AdvisorAttributes;
     const room = attr.recommended_room ?? "";
-    const headline = t(lang, `states.${rec}.headline`, { room });
+    // the integration localises `headline` in the HA UI language – use it directly
+    const headline = attr.headline ?? "";
     const rooms = Array.isArray(attr.rooms) ? attr.rooms.slice() : [];
 
     return html`
@@ -115,26 +116,11 @@ export class LaundryAdvisorCard extends LitElement {
 
         ${this._config.show_rooms && rooms.length ? this._rooms(rooms) : nothing}
         ${
-          this._config.show_reasons && attr.reason_codes?.length
+          this._config.show_reasons && attr.reasons?.length
             ? html`<ul class="reasons">
-                ${attr.reason_codes.map(
-                (c) =>
-                  html`<li>
-                    ${t(lang, `reasons.${c.code}`, {
-                      s: c.s,
-                      t: c.t,
-                      d: c.d,
-                      n: c.n,
-                      rh: c.rh,
-                    })}
-                  </li>`,
-              )}
+                ${attr.reasons.map((r) => html`<li>${r}</li>`)}
               </ul>`
-            : attr.reasons?.length
-              ? html`<ul class="reasons">
-                  ${attr.reasons.map((r) => html`<li>${r}</li>`)}
-                </ul>`
-              : nothing
+            : nothing
         }
       </ha-card>
     `;

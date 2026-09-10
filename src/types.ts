@@ -2,7 +2,7 @@ import type { LovelaceCardConfig } from "custom-card-helpers";
 
 export interface LaundryAdvisorCardConfig extends LovelaceCardConfig {
   type: string;
-  /** The recommendation sensor produced by the ha-laundry-advisor blueprint. */
+  /** `sensor.laundry_advisor` from the ha-laundry-advisor integration. */
   entity: string;
   name?: string;
   show_rooms?: boolean;
@@ -23,6 +23,8 @@ export interface RoomInfo {
   dewpoint?: number;
   vpd?: number;
   ventilation_useful?: boolean;
+  has_window?: boolean;
+  window_open?: boolean | null;
   has_fan?: boolean;
   has_dehumidifier?: boolean;
   suitable?: boolean;
@@ -40,9 +42,11 @@ export interface ReasonCode {
 }
 
 export interface AdvisorAttributes {
-  language?: string;
+  /** Localised one-liner from the integration (HA UI language). */
   headline?: string;
+  /** Localised reason lines from the integration. */
   reasons?: string[];
+  /** Language-neutral reason codes (kept for consumers that localise themselves). */
   reason_codes?: ReasonCode[];
   recommended_room?: string | null;
   recommended_fan?: string | null;

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.0] – 2026-09-10
+
+Now tracks the **ha-laundry-advisor integration** (v0.4+); the template blueprint
+is gone. Same `sensor.laundry_advisor` attribute contract.
+
+### Changed
+- The headline and the reason lines are taken **verbatim** from the integration's
+  own `headline` / `reasons` attributes (localised there in the HA UI language),
+  instead of the card re-localising `reason_codes`. Fixes empty reason bullets for
+  the v0.4 `window_open` / `window_closed` codes and removes cross-repo drift.
+- Locale files shrunk to the card's own strings (chip labels, room status, UI):
+  `states.*.headline` and the whole `reasons` block are gone.
+
+### Fixed
+- Visual editor: `show_rooms` / `show_reasons` toggles now show their effective
+  default (`true`) instead of appearing off until touched.
+
+### Added
+- `rooms[]` type gains `has_window` / `window_open`.
+
 ## [0.2.1] – 2026-09-09
 
 ### Fixed
