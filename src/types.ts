@@ -17,7 +17,7 @@ export interface ForecastDay {
 export interface RoomInfo {
   name: string;
   score: number;
-  status: "ok" | "too_humid" | "too_cold" | "mold_risk";
+  status: "ok" | "too_humid" | "too_cold" | "mold_risk" | "no_data";
   temperature?: number;
   humidity?: number;
   dewpoint?: number;

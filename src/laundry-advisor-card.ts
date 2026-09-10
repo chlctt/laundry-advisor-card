@@ -182,15 +182,24 @@ export class LaundryAdvisorCard extends LitElement {
       <div class="rooms">
         <div class="rooms-title">${t(lang, "ui.rooms")}</div>
         ${rooms.map((r) => {
-          const chipClass = r.status === "ok" ? "ok" : r.status === "mold_risk" ? "danger" : "warn";
+          const noData = r.status === "no_data";
+          const chipClass = noData
+            ? "muted-tag"
+            : r.status === "ok"
+              ? "ok"
+              : r.status === "mold_risk"
+                ? "danger"
+                : "warn";
           return html`
-            <div class="room ${r.recommended ? "recommended" : ""}">
+            <div class="room ${r.recommended ? "recommended" : ""} ${noData ? "nodata" : ""}">
               <div class="room-bar">
                 <div
                   class="room-bar-fill"
-                  style=${`width:${Math.max(3, Math.min(100, r.score))}%;background:${scoreColor(
-                    r.score,
-                  )}`}
+                  style=${
+                    noData
+                      ? "width:100%;background:var(--divider-color, #e0e0e0)"
+                      : `width:${Math.max(3, Math.min(100, r.score))}%;background:${scoreColor(r.score)}`
+                  }
                 ></div>
               </div>
               <div class="room-main">
@@ -198,27 +207,35 @@ export class LaundryAdvisorCard extends LitElement {
                   ${r.recommended ? html`<ha-icon icon="mdi:star" class="star"></ha-icon>` : nothing}
                   ${r.name}
                 </span>
-                <span class="room-score">${Math.round(r.score)}</span>
+                <span class="room-score">${noData ? "–" : Math.round(r.score)}</span>
                 <span class="tag ${chipClass}">${t(lang, `room_status.${r.status}`)}</span>
               </div>
               <div class="room-sub muted">
-                ${r.humidity != null ? html`${r.humidity}% rF` : nothing}
-                ${r.temperature != null ? html`· ${r.temperature}°C` : nothing}
                 ${
-                  // only talk about airing for a room that can actually be aired
-                  r.has_window
-                    ? html`·
-                      ${
-                        r.ventilation_useful
-                          ? t(lang, "ui.ventilate_hint")
-                          : t(lang, "ui.ventilate_useless")
-                      }`
-                    : r.has_window === false
-                      ? html`· ${t(lang, "ui.no_airing")}`
-                      : nothing
+                  noData
+                    ? t(lang, "ui.no_data_hint")
+                    : html`
+                        ${r.humidity != null ? html`${r.humidity}% ${t(lang, "ui.rh")}` : nothing}
+                        ${r.temperature != null ? html`· ${r.temperature}°C` : nothing}
+                        ${
+                          // only talk about airing for a room that can actually be aired
+                          r.has_window
+                            ? html`·
+                              ${
+                                r.ventilation_useful
+                                  ? t(lang, "ui.ventilate_hint")
+                                  : t(lang, "ui.ventilate_useless")
+                              }`
+                            : r.has_window === false
+                              ? html`· ${t(lang, "ui.no_airing")}`
+                              : nothing
+                        }
+                        ${
+                          r.has_dehumidifier ? html`· ${t(lang, "ui.has_dehumidifier")}` : nothing
+                        }
+                        ${r.has_fan ? html`· ${t(lang, "ui.has_fan")}` : nothing}
+                      `
                 }
-                ${r.has_dehumidifier ? html`· ${t(lang, "ui.has_dehumidifier")}` : nothing}
-                ${r.has_fan ? html`· ${t(lang, "ui.has_fan")}` : nothing}
               </div>
             </div>
           `;
@@ -409,6 +426,13 @@ export class LaundryAdvisorCard extends LitElement {
     .tag.danger {
       background: #e5393522;
       color: #c62828;
+    }
+    .tag.muted-tag {
+      background: var(--divider-color, #e0e0e0);
+      color: var(--secondary-text-color);
+    }
+    .room.nodata {
+      opacity: 0.6;
     }
     .reasons {
       margin: 0;

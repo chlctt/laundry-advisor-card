@@ -57,6 +57,7 @@
     "window_open": "Fenster/Tür in {n} steht schon offen.",
     "window_closed": "Fenster/Tür in {n} öffnen.",
     "no_room": "Kein Innenraum unter der Feuchtegrenze.",
+    "no_room_data": "Gerade keine Sensordaten aus den Räumen.",
     "no_dryer": "Kein Wäschetrockner konfiguriert.",
     "no_forecast": "Keine Wettervorhersage verfügbar.",
     "mold": "{n}: Schimmelgefahr (rF über 80%)."
@@ -65,7 +66,8 @@
     "ok": "ok",
     "too_humid": "zu feucht",
     "too_cold": "zu kalt",
-    "mold_risk": "Schimmel"
+    "mold_risk": "Schimmel",
+    "no_data": "keine Daten"
   },
   "ui": {
     "today": "Heute",
@@ -76,9 +78,11 @@
     "daylight_left": "{h} h Tageslicht übrig",
     "rooms": "Räume",
     "recommended": "empfohlen",
+    "rh": "rF",
     "ventilate_hint": "lüften sinnvoll",
     "ventilate_useless": "Lüften bringt nichts",
     "no_airing": "kein Fenster zum Lüften",
+    "no_data_hint": "Sensor nicht verfügbar",
     "has_fan": "Ventilator",
     "has_dehumidifier": "Entfeuchter",
     "entity_not_found": "Entität {entity} nicht gefunden.",

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.2] – 2026-09-10
+
+### Added
+- Rooms whose sensors are temporarily unavailable now render as a greyed
+  **"no data"** row (with ha-laundry-advisor ≥ v0.4.3) instead of the room
+  silently disappearing from the list.
+
+### Fixed
+- Humidity unit is localised (`% RH` / `% rF`) instead of a hard-coded `% rF`.
+
 ## [0.3.1] – 2026-09-10
 
 ### Fixed
