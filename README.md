@@ -4,8 +4,6 @@ Lovelace card for the **[ha-laundry-advisor](https://github.com/chlctt/ha-laundr
 integration: shows at a glance whether laundry should dry **outside**, in an
 **indoor room**, in the **tumble dryer**, or whether to **wait**.
 
-![Laundry Advisor Card](assets/screenshot.png)
-
 > Needs **ha-laundry-advisor ≥ v0.4** (the custom integration) for the `room_ok`
 > state and the window/door hints. The card localises the headline and reason
 > lines in the viewer's HA language.
