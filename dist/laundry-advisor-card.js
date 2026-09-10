@@ -18,7 +18,7 @@ function t(t,e,s,i){var o,r=arguments.length,n=r<3?e:null===i?i=Object.getOwnPro
             <div class="title">
               ${this._config.name??vt(t,`states.${s}.label`,{room:r})}
             </div>
-            <div class="sub">${n}</div>
+            ${n?W`<div class="sub">${n}</div>`:V}
           </div>
         </div>
 

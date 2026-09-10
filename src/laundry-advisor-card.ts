@@ -93,7 +93,7 @@ export class LaundryAdvisorCard extends LitElement {
             <div class="title">
               ${this._config.name ?? t(lang, `states.${rec}.label`, { room })}
             </div>
-            <div class="sub">${headline}</div>
+            ${headline ? html`<div class="sub">${headline}</div>` : nothing}
           </div>
         </div>
 
