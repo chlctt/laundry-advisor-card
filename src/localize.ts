@@ -28,8 +28,7 @@ export function t(
   vars?: Record<string, string | number | undefined>,
 ): string {
   const val = lookup(lang, path);
-  // Missing key (blueprint newer than the card): render nothing rather than the
-  // raw path.
+  // Missing key (integration newer than the card): render nothing, not the raw path.
   if (typeof val !== "string") return "";
   if (!vars) return val;
   return val.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));

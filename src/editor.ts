@@ -39,7 +39,8 @@ export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCard
   @state() private _config?: LaundryAdvisorCardConfig;
 
   public setConfig(config: LaundryAdvisorCardConfig): void {
-    this._config = config;
+    // mirror the card's own defaults so the toggles show their effective state
+    this._config = { show_rooms: true, show_reasons: true, ...config };
   }
 
   private _label = (schema: { name: string }): string => {

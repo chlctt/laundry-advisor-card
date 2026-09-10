@@ -1,17 +1,18 @@
 # Laundry Advisor Card
 
 Lovelace card for the **[ha-laundry-advisor](https://github.com/chlctt/ha-laundry-advisor)**
-blueprint: shows at a glance whether laundry should dry **outside**, in an
+integration: shows at a glance whether laundry should dry **outside**, in an
 **indoor room**, in the **tumble dryer**, or whether to **wait**.
 
-> Status: **v0.2**. Needs blueprint v0.2. Bilingual (en/de) via `hass.language`,
-> fallback English.
+> Needs **ha-laundry-advisor ≥ v0.4** (the custom integration). The card renders
+> the integration's own localised `headline` / `reasons`; the `room_ok` state and
+> the window/door reasons need v0.4.
 
 ## Requirement
 
-The **ha-laundry-advisor** blueprint (v0.2) must be installed and produce a
-sensor (default `sensor.laundry_advisor`) with the recommendation as its state
-and the details as attributes.
+The **ha-laundry-advisor** integration must be installed and provide
+`sensor.laundry_advisor` – the recommendation as its state, the details as
+attributes.
 
 ## Installation (HACS)
 
@@ -45,8 +46,9 @@ A visual editor is available.
 Layout: three score rings (**Today** large, **Tomorrow** + **Day after** small),
 best drying window, then the room list with the recommended room highlighted.
 
-**Language:** taken from `hass.language` (en/de), fallback English – independent
-of the blueprint's `language` input.
+**Language:** the headline and reason lines come already localised from the
+integration (HA UI language). The card's own labels (chips, "Rooms", …) follow
+`hass.language` (en/de), fallback English.
 
 ## Development
 
