@@ -57,6 +57,7 @@
     "window_open": "Fenster/Tür in {n} steht schon offen.",
     "window_closed": "Fenster/Tür in {n} öffnen.",
     "no_room": "Kein Innenraum unter der Feuchtegrenze.",
+    "no_room_data": "Gerade keine Sensordaten aus den Räumen.",
     "no_dryer": "Kein Wäschetrockner konfiguriert.",
     "no_forecast": "Keine Wettervorhersage verfügbar.",
     "mold": "{n}: Schimmelgefahr (rF über 80%)."
