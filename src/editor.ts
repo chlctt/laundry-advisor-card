@@ -2,7 +2,7 @@ import { LitElement, html, nothing, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
 
-import { EDITOR_TAG } from "./const";
+import { DEFAULT_CONFIG, EDITOR_TAG } from "./const";
 import { pickLang } from "./localize";
 import type { LaundryAdvisorCardConfig } from "./types";
 
@@ -39,8 +39,7 @@ export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCard
   @state() private _config?: LaundryAdvisorCardConfig;
 
   public setConfig(config: LaundryAdvisorCardConfig): void {
-    // mirror the card's own defaults so the toggles show their effective state
-    this._config = { show_rooms: true, show_reasons: true, ...config };
+    this._config = config;
   }
 
   private _label = (schema: { name: string }): string => {
@@ -53,7 +52,7 @@ export class LaundryAdvisorCardEditor extends LitElement implements LovelaceCard
     return html`
       <ha-form
         .hass=${this.hass}
-        .data=${this._config}
+        .data=${{ ...DEFAULT_CONFIG, ...this._config }}
         .schema=${SCHEMA}
         .computeLabel=${this._label}
         @value-changed=${this._valueChanged}

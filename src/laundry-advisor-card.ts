@@ -5,6 +5,7 @@ import type { HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
 import {
   CARD_TAG,
   CARD_VERSION,
+  DEFAULT_CONFIG,
   EDITOR_TAG,
   STATE_META,
   scoreColor,
@@ -41,14 +42,14 @@ export class LaundryAdvisorCard extends LitElement {
   }
 
   public static getStubConfig(): Partial<LaundryAdvisorCardConfig> {
-    return { entity: "sensor.laundry_advisor", show_rooms: true };
+    return { entity: "sensor.laundry_advisor", ...DEFAULT_CONFIG };
   }
 
   public setConfig(config: LaundryAdvisorCardConfig): void {
     if (!config || !config.entity) {
       throw new Error("Please set an advisor sensor entity (entity).");
     }
-    this._config = { show_rooms: true, show_reasons: true, ...config };
+    this._config = { ...DEFAULT_CONFIG, ...config };
   }
 
   public getCardSize(): number {
@@ -81,8 +82,12 @@ export class LaundryAdvisorCard extends LitElement {
     const meta = STATE_META[rec];
     const attr = stateObj.attributes as AdvisorAttributes;
     const room = attr.recommended_room ?? "";
-    // the integration localises `headline` in the HA UI language – use it directly
-    const headline = attr.headline ?? "";
+    // Localise the headline card-side (viewer's language). The integration's own
+    // `headline` is in the HA *server* language, which differs for a user whose
+    // profile language is not the server default – so prefer the locale file and
+    // only fall back to the attribute.
+    const headline = t(lang, `states.${rec}.headline`, { room }) || (attr.headline ?? "");
+    const reasons = this._reasons(lang, attr);
     const rooms = Array.isArray(attr.rooms) ? attr.rooms.slice() : [];
 
     return html`
@@ -116,9 +121,9 @@ export class LaundryAdvisorCard extends LitElement {
 
         ${this._config.show_rooms && rooms.length ? this._rooms(rooms) : nothing}
         ${
-          this._config.show_reasons && attr.reasons?.length
+          this._config.show_reasons && reasons.length
             ? html`<ul class="reasons">
-                ${attr.reasons.map((r) => html`<li>${r}</li>`)}
+                ${reasons.map((r) => html`<li>${r}</li>`)}
               </ul>`
             : nothing
         }
@@ -145,6 +150,19 @@ export class LaundryAdvisorCard extends LitElement {
         <div class="ring-label">${label}</div>
       </div>
     `;
+  }
+
+  /** Reason lines in the viewer's language: localise `reason_codes` via the
+   *  card's locale, falling back to the integration's pre-localised `reasons`. */
+  private _reasons(lang: string, attr: AdvisorAttributes): string[] {
+    if (Array.isArray(attr.reason_codes) && attr.reason_codes.length) {
+      return attr.reason_codes
+        .map((c) =>
+          t(lang, `reasons.${c.code}`, { s: c.s, t: c.t, d: c.d, n: c.n, rh: c.rh }),
+        )
+        .filter((line) => line.length > 0);
+    }
+    return Array.isArray(attr.reasons) ? attr.reasons : [];
   }
 
   private _window(attr: AdvisorAttributes): TemplateResult {
@@ -187,14 +205,17 @@ export class LaundryAdvisorCard extends LitElement {
                 ${r.humidity != null ? html`${r.humidity}% rF` : nothing}
                 ${r.temperature != null ? html`· ${r.temperature}°C` : nothing}
                 ${
-                  r.ventilation_useful != null
+                  // only talk about airing for a room that can actually be aired
+                  r.has_window
                     ? html`·
                       ${
                         r.ventilation_useful
                           ? t(lang, "ui.ventilate_hint")
                           : t(lang, "ui.ventilate_useless")
                       }`
-                    : nothing
+                    : r.has_window === false
+                      ? html`· ${t(lang, "ui.no_airing")}`
+                      : nothing
                 }
                 ${r.has_dehumidifier ? html`· ${t(lang, "ui.has_dehumidifier")}` : nothing}
                 ${r.has_fan ? html`· ${t(lang, "ui.has_fan")}` : nothing}

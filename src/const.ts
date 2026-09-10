@@ -1,6 +1,10 @@
-export const CARD_VERSION = "0.3.0";
+export const CARD_VERSION = "0.3.1";
 export const CARD_TAG = "laundry-advisor-card";
 export const EDITOR_TAG = "laundry-advisor-card-editor";
+
+/** Effective defaults for the optional toggles – one source of truth for the
+ *  card, the editor view-model and the stub config. */
+export const DEFAULT_CONFIG = { show_rooms: true, show_reasons: true } as const;
 
 export type Recommendation =
   | "hang_outside_now"
@@ -21,8 +25,8 @@ interface StateMeta {
   color: string;
 }
 
-/** Icon + accent colour per recommendation state. Labels/headlines come from
- *  the locale files. */
+/** Icon + accent colour per recommendation state. Labels + headlines come from
+ *  the locale files (card-side, in the viewer's language). */
 export const STATE_META: Record<Recommendation, StateMeta> = {
   hang_outside_now: { icon: "mdi:weather-sunny", color: "#43a047" },
   hang_outside_later: { icon: "mdi:weather-sunset", color: "#7cb342" },

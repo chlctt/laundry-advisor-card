@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.1] – 2026-09-10
+
+### Fixed
+- **Headline and reasons are localised card-side again** (viewer's profile
+  language). v0.3.0 rendered the integration's `headline` / `reasons` verbatim,
+  but those are in the HA *server* language — wrong for a user whose profile
+  language differs from the server default. The card now localises from
+  `reason_codes` + its own locale files and only falls back to the attributes.
+- A room with no window/door contact shows "no window to air" instead of the
+  misleading "airing does nothing".
+
+### Changed
+- `DEFAULT_CONFIG` is one constant in `const.ts`, shared by the card,
+  `getStubConfig` and the editor (was spelled out in three places).
+- Editor shows the effective toggle state without merging defaults into the
+  stored config in `setConfig`.
+
 ## [0.3.0] – 2026-09-10
 
 Now tracks the **ha-laundry-advisor integration** (v0.4+); the template blueprint
