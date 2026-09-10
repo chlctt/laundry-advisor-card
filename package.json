@@ -1,6 +1,6 @@
 {
   "name": "laundry-advisor-card",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Lovelace card for the Home Assistant Laundry Advisor integration",
   "type": "module",
   "main": "dist/laundry-advisor-card.js",

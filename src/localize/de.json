@@ -65,7 +65,8 @@
     "ok": "ok",
     "too_humid": "zu feucht",
     "too_cold": "zu kalt",
-    "mold_risk": "Schimmel"
+    "mold_risk": "Schimmel",
+    "no_data": "keine Daten"
   },
   "ui": {
     "today": "Heute",
@@ -76,9 +77,11 @@
     "daylight_left": "{h} h Tageslicht übrig",
     "rooms": "Räume",
     "recommended": "empfohlen",
+    "rh": "rF",
     "ventilate_hint": "lüften sinnvoll",
     "ventilate_useless": "Lüften bringt nichts",
     "no_airing": "kein Fenster zum Lüften",
+    "no_data_hint": "Sensor nicht verfügbar",
     "has_fan": "Ventilator",
     "has_dehumidifier": "Entfeuchter",
     "entity_not_found": "Entität {entity} nicht gefunden.",

@@ -65,7 +65,8 @@
     "ok": "ok",
     "too_humid": "too humid",
     "too_cold": "too cold",
-    "mold_risk": "mould"
+    "mold_risk": "mould",
+    "no_data": "no data"
   },
   "ui": {
     "today": "Today",
@@ -76,9 +77,11 @@
     "daylight_left": "{h} h of daylight left",
     "rooms": "Rooms",
     "recommended": "recommended",
+    "rh": "RH",
     "ventilate_hint": "airing helps",
     "ventilate_useless": "airing does nothing",
     "no_airing": "no window to air",
+    "no_data_hint": "sensor unavailable",
     "has_fan": "fan",
     "has_dehumidifier": "dehumidifier",
     "entity_not_found": "Entity {entity} not found.",
